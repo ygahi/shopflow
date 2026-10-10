@@ -127,6 +127,52 @@ class PanierTest {
     }
 
     @Nested
+    @DisplayName("R6 et R7 : remise et total")
+    class RemiseEtTotal {
+
+        @Test
+        @DisplayName("sans code promo, total = sous-total + livraison")
+        void sansCodePromoLeTotalInclutLaLivraison() {
+            panier.ajouter(SOURIS, 1);
+
+            assertMontant("150.00", panier.total());
+        }
+
+        @Test
+        @DisplayName("R6 : la remise porte sur le sous-total, jamais sur la livraison")
+        void laRemiseNePortePasSurLaLivraison() {
+            panier.ajouter(SOURIS, 1);
+            panier.appliquerCodePromo(new CodePromo("BIENVENUE10", 10));
+
+            assertAll(
+                    () -> assertMontant("12.00", panier.remise()),
+                    () -> assertMontant("30.00", panier.fraisLivraison()),
+                    () -> assertMontant("138.00", panier.total()));
+        }
+
+        @Test
+        @DisplayName("R6 : la remise est arrondie au centime")
+        void laRemiseEstArrondieAuCentime() {
+            panier.ajouter(CABLE, 3);
+            panier.appliquerCodePromo(new CodePromo("ETE15", 15));
+
+            assertMontant("9.00", panier.remise());
+        }
+
+        @Test
+        @DisplayName("R5 et R6 : le seuil de livraison s'évalue avant la remise")
+        void leSeuilDeLivraisonSEvalueAvantLaRemise() {
+            panier.ajouter(CLAVIER, 1);
+            panier.ajouter(SOURIS, 1);
+            panier.appliquerCodePromo(new CodePromo("BIENVENUE10", 10));
+
+            assertAll(
+                    () -> assertMontant("0.00", panier.fraisLivraison()),
+                    () -> assertMontant("513.00", panier.total()));
+        }
+    }
+
+    @Nested
     @DisplayName("R8 : code promo")
     class CodePromoSurPanier {
 
