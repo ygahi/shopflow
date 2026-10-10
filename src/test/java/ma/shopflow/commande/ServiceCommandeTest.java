@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -128,5 +129,21 @@ class ServiceCommandeTest {
                 .hasMessageContaining("Solde insuffisant");
         verify(stock).liberer("SOUR-02", 2);
         verifyNoInteractions(commandes, notifications);
+    }
+
+    @Test
+    @DisplayName("C6 : une panne de l'envoi d'e-mail n'annule pas la commande")
+    void unePanneDeMailNAnnulePasLaCommande() {
+        when(stock.estDisponible(anyString(), anyInt())).thenReturn(true);
+        when(paiement.debiter(anyString(), any())).thenReturn(ResultatPaiement.accepte("PAY-789"));
+        when(commandes.enregistrer(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        doThrow(new IllegalStateException("Serveur SMTP injoignable"))
+                .when(notifications).envoyerConfirmation(anyString(), any());
+
+        Commande commande = service.passerCommande(AMINA, panier);
+
+        assertThat(commande.statut()).isEqualTo(StatutCommande.CONFIRMEE);
+        verify(commandes).enregistrer(any(Commande.class));
+        verify(stock, never()).liberer(anyString(), anyInt());
     }
 }
