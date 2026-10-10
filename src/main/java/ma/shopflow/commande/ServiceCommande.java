@@ -36,6 +36,9 @@ public class ServiceCommande {
 
         ResultatPaiement resultat = paiement.debiter(client.id(), panier.total());
         if (!resultat.accepte()) {
+            for (LignePanier ligne : panier.lignes()) {
+                stock.liberer(ligne.produit().reference(), ligne.quantite());
+            }
             throw new PaiementRefuseException(resultat.motifRefus());
         }
 
