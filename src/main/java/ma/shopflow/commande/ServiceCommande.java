@@ -8,6 +8,8 @@ import ma.shopflow.panier.Panier;
  */
 public class ServiceCommande {
 
+    private static final System.Logger LOG = System.getLogger(ServiceCommande.class.getName());
+
     private final StockService stock;
     private final PaiementGateway paiement;
     private final CommandeRepository commandes;
@@ -44,7 +46,12 @@ public class ServiceCommande {
 
         Commande commande = commandes.enregistrer(
                 Commande.confirmee(client.id(), panier.lignes(), panier.total(), resultat.reference()));
-        notifications.envoyerConfirmation(client.email(), commande);
+        try {
+            notifications.envoyerConfirmation(client.email(), commande);
+        } catch (RuntimeException e) {
+            // la commande est payée : une panne d'e-mail ne doit pas l'annuler
+            LOG.log(System.Logger.Level.WARNING, "E-mail non envoyé pour la commande {0} : {1}", commande.id(), e.getMessage());
+        }
         return commande;
     }
 }
