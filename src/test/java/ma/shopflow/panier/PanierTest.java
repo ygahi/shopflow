@@ -13,6 +13,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 @DisplayName("Panier ShopFlow")
 class PanierTest {
@@ -96,6 +98,31 @@ class PanierTest {
             panier.ajouter(CABLE, 3);
 
             assertMontant("59.97", panier.sousTotal());
+        }
+    }
+
+    @Nested
+    @DisplayName("R5 : frais de livraison")
+    class FraisDeLivraison {
+
+        @Test
+        @DisplayName("un panier vide ne paie pas de livraison")
+        void unPanierVideNePaiePasDeLivraison() {
+            assertMontant("0.00", panier.fraisLivraison());
+        }
+
+        @ParameterizedTest(name = "sous-total {0} DH -> livraison {1} DH")
+        @CsvSource({
+                "100.00,  30.00",
+                "499.99,  30.00",
+                "500.00,   0.00",
+                "500.01,   0.00",
+                "1200.00,  0.00"
+        })
+        void laLivraisonEstOfferteAPartirDe500DH(String sousTotal, String fraisAttendus) {
+            panier.ajouter(new Produit("TEST-01", "Produit de test", new BigDecimal(sousTotal)), 1);
+
+            assertMontant(fraisAttendus, panier.fraisLivraison());
         }
     }
 
