@@ -75,7 +75,7 @@ public class Panier {
         if (estVide()) {
             return BigDecimal.ZERO.setScale(2);
         }
-        return sousTotal().compareTo(SEUIL_LIVRAISON_OFFERTE) > 0
+        return sousTotal().compareTo(SEUIL_LIVRAISON_OFFERTE) >= 0
                 ? BigDecimal.ZERO.setScale(2)
                 : FRAIS_LIVRAISON;
     }
