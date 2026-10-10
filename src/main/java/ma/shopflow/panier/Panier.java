@@ -81,11 +81,7 @@ public class Panier {
     }
 
     public BigDecimal total() {
-        BigDecimal montant = sousTotal().add(fraisLivraison());
-        if (codePromo != null) {
-            montant = montant.subtract(pourcentageDe(montant, codePromo.pourcentage()));
-        }
-        return montant;
+        return sousTotal().subtract(remise()).add(fraisLivraison());
     }
 
     private static BigDecimal pourcentageDe(BigDecimal montant, int pourcentage) {
