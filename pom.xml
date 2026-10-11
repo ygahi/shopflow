@@ -22,6 +22,7 @@
         <sonar.projectKey>shopflow</sonar.projectKey>
         <sonar.projectName>ShopFlow</sonar.projectName>
         <sonar.host.url>http://localhost:9000</sonar.host.url>
+        <sonar.coverage.exclusions>**/ShopflowApplication.java</sonar.coverage.exclusions>
     </properties>
 
     <dependencyManagement>
