@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.math.BigDecimal;
+import java.util.NoSuchElementException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -76,6 +77,32 @@ class PanierTest {
 
             assertThrows(QuantiteMaximaleDepasseeException.class, () -> panier.ajouter(CABLE, 3));
             assertEquals(8, panier.nombreArticles());
+        }
+    }
+
+    @Nested
+    @DisplayName("Retrait de produits")
+    class RetraitDeProduits {
+
+        @Test
+        @DisplayName("retirer un produit supprime sa ligne")
+        void retirerUnProduitSupprimeSaLigne() {
+            panier.ajouter(SOURIS, 2);
+            panier.ajouter(CABLE, 1);
+
+            panier.retirer("SOUR-02");
+
+            assertEquals(1, panier.lignes().size());
+            assertEquals(1, panier.nombreArticles());
+        }
+
+        @Test
+        @DisplayName("retirer un produit absent est une erreur")
+        void retirerUnProduitAbsentEstUneErreur() {
+            NoSuchElementException erreur = assertThrows(NoSuchElementException.class,
+                    () -> panier.retirer("SOUR-02"));
+
+            assertEquals("Produit absent du panier : SOUR-02", erreur.getMessage());
         }
     }
 
