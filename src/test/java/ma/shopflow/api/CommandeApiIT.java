@@ -27,7 +27,7 @@ import ma.shopflow.commande.NotificationService;
 @AutoConfigureMockMvc
 @Import(TestcontainersConfiguration.class)
 @DisplayName("API des commandes")
-class CommandeApiTest {
+class CommandeApiIT {
 
     @Autowired
     MockMvcTester mvc;
